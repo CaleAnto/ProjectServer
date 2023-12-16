@@ -1,0 +1,23 @@
+{
+  "_id": "65781db96a31bc22f31bbaba",
+  "customer": {
+    "username": "admin"
+  },
+  "order": [
+    {
+      "_id": "6578021f89a49e4b601b6451",
+      "name": "name1",
+      "description": "des1",
+      "price": 1000
+    },
+    {
+      "_id": "6578024b89a49e4b601b6457",
+      "name": "name2",
+      "description": "des1",
+      "price": 1000
+    }
+  ],
+  "in": "6577dec35631b4a2962025b2",
+  "__v": 0,
+  "time": "2023-12-16T15:43:44.625Z"
+}
