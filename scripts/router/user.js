@@ -109,16 +109,98 @@ router.get("/get-user", authenticateJWT, async (req, res) => {
 
 router.get("/subscribe", async (req, res) => {
     try {
-        const subscribe = await Subscribe.find()
-        res.json({subscribe})
+        const subscribe = await Subscribe.find();
+        res.json({subscribe});
     } catch(error) {
-        console.log(error)
+        console.log(error);
     }
 });
 
-router.get('/', authenticateJWT, (req, res) => {
+router.post("/subscribe", authenticateJWT, async (req, res) => {
+
+    const { card, date, cvv, subscribe } = req.body;
+
+    const requiredParams = ['card', 'date', 'ccv', 'subscribe'];
+    const missingParams = requiredParams.filter(param => !req.body[param]);
+
+    if (missingParams.length > 0) {
+        return res.status(400).json({ missingParams: `Missing required parameters: ${missingParams.join(', ')}` });
+    }
+
+    try {
+        const token = decodedJWT(req.header('Authorization'));
+
+        const sub = await Subscribe.findById(subscribe);
+        if(sub.name === "Rent") {
+            const { space } = req.body;
+            if(!space) {
+                return res.status(400).json({ missingParams: `Missing required parameters: space` });
+            }
+            await User.findByIdAndUpdate(token.userId, {
+                subscribe: sub._id,
+                endSubscribe: sub.limit,
+            })
+            await Storage.findOneAndUpdate({owner: token.userId}, {
+                space: space,
+                maxweight: space*100,
+                maxheight: space*200
+            })
+        } else {
+            await User.findByIdAndUpdate(token.userId, {
+                subscribe: sub._id,
+                endSubscribe: sub.limit,
+            })
+            await Storage.findOneAndUpdate({owner: token.userId}, {
+                space: sub.add,
+                maxweight: sub.add*100,
+                maxheight: sub.add*200
+            })
+        }
+
+        const user = await User.findById(token.userId).select('-password -__v');
+        res.json(user);
+
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.get('/', authenticateJWT, async (req, res) => {
     res.json("Hello World");
     console.log('Декодированные данные из JWT токена:', decodedJWT(req.header('Authorization')));
-}) // For check for JWT token
 
-module.exports = router
+    // const small = await Subscribe.create({
+    //     name: "Small",
+    //     description: "This is small subcribe",
+    //     add: 40,
+    //     price: 4000,
+    //     limit: 30,
+    // });
+
+    // const medium = await Subscribe.create({
+    //     name: "Medium",
+    //     description: "This is medium subcribe",
+    //     add: 100,
+    //     price: 10000,
+    //     limit: 30,
+    // });
+
+    // const high = await Subscribe.create({
+    //     name: "High",
+    //     description: "This is high subcribe",
+    //     add: 200,
+    //     price: 20000,
+    //     limit: 30,
+    // });
+
+    // const rent = await Subscribe.create({
+    //     name: "Rent",
+    //     description: "This is rent subcribe",
+    //     add: null,
+    //     price: 200,
+    //     limit: 30,
+    // });
+
+}); // For check for JWT token
+
+module.exports = router;

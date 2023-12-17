@@ -1,6 +1,9 @@
 const { app } = require('./scripts/connect.js');
+const yaml = require('js-yaml');
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
 
 const userRoute = require('./scripts/router/user.js');
 app.use("/", userRoute);
@@ -8,15 +11,15 @@ app.use("/", userRoute);
 const storageRoute = require('./scripts/router/router.js');
 app.use("/api", storageRoute);
 
-const employeesRoute = require('./scripts/router/employees.js');
-app.use("/employees", employeesRoute)
-
 const folderPath = path.join(__dirname, 'Receipts');
-app.use('/receipts', express.static(folderPath));
+app.use("/receipts", express.static(folderPath));
+
+const swaggerDocument = yaml.load(fs.readFileSync('swagger.yaml', 'utf8'));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
-const now = new Date();
+
 app.listen(PORT, () => {
   console.log('Listern Port ' + PORT);
-  console.log(now)
 });

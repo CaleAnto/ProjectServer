@@ -6,13 +6,30 @@ const { express } = require('../connect.js');
 const { authenticateJWT, decodedJWT } = require('../tools.js');
 
 const router = express.Router();
-const { Product, Storage, Order, User  } = require('../models');
+const { Product, Storage, Order, User } = require('../models');
 
-router.post("/add", authenticateJWT, async (req, res) => {
+router.get("/storage", authenticateJWT, async (req, res) => {
+    try{
+        const token = decodedJWT(req.header('Authorization'));
+        const storage = await Storage.findOne({ owner: token.userId })
+        .populate({
+            path: 'repository',
+            model: 'product'
+        });
 
-    const { name, description, price, count } = req.body;
+        res.json(storage);
 
-    const requiredParams = ['name', 'description', 'price', 'count'];
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post("/storage", authenticateJWT, async (req, res) => {
+
+    const { name, description, price, count, weight, height } = req.body;
+
+    const requiredParams = ['name', 'description', 'price', 'count', 'weight', 'height'];
     const missingParams = requiredParams.filter(param => !req.body[param]);
 
     if (missingParams.length > 0) {
@@ -27,23 +44,25 @@ router.post("/add", authenticateJWT, async (req, res) => {
             return res.status(403).send("Нету свободных мест, приобритите подписку");
         }
 
-        if(storage.space < count) {
+        if(storage.space < count && storage.maxheight < height && storage.maxweight < weight) {
             return res.status(403).send("Слишком много товара.");
         };
 
         const product = await Product.create({
             name,
             description,
-            price,
             count,
-            status: "On verification"
+            weight,
+            height,
+            price,
+            status: "Active"
         });
 
         product.save();
 
         await Storage.findByIdAndUpdate(storage._id, {
             $push: { repository: product._id },
-            $inc: { space: -count }
+            $inc: { space: -count, maxweight: -weight, maxheight: -height }
         });
 
         res.json(product);
@@ -112,11 +131,11 @@ router.post("/order", authenticateJWT, async (req, res) => {
     }
 });
 
-router.post("/order/accept/:code", authenticateJWT, async(req, res) => {
+router.post("/order/:code", authenticateJWT, async(req, res) => {
     try {
 
         const token = decodedJWT(req.header('Authorization'));
-        const { code } = req.params.code;
+        const { code } = req.params;
 
         if (!code) {
             return res.status(400).json({ missingParams: 'Missing required parameters - code' });
@@ -176,5 +195,26 @@ router.post("/order/accept/:code", authenticateJWT, async(req, res) => {
         console.log(error);
     }
 }); //Complete
+
+router.post("/order/complete", async (req, res) => {
+    try {
+
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).send("Invalid or empty product id array");
+        };
+
+        await Order.findByIdAndUpdate(id, {
+            status: "Ready to be issued",
+            check: randomatic('A0', 5)
+        });
+
+        res.json("Complete")
+
+    } catch(error) {
+        console.log(error);
+    }
+});
 
 module.exports = router

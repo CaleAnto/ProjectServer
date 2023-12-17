@@ -1,0 +1,398 @@
+openapi: 3.0.0
+info:
+  title: Api для серверной части программы для склада.
+  version: 1.0.0
+  description: CRUD операций для этого Api
+
+paths:
+  /register:
+    post:
+      summary: 'Регистрация нового пользователя'
+      parameters:
+        - name: 'Тело'
+          in: 'body'
+          description: 'Данные пользователя'
+          required: true
+          schema:
+            $ref: '#/definitions/UserRegistration'
+      responses:
+        '201':
+          description: 'Пользователь успешно зарегистрирован'
+          schema:
+            $ref: '#/definitions/User'
+
+  /login:
+    post:
+      summary: 'Войдите с именем пользователя и паролем'
+      parameters:
+        - name: 'Тело'
+          in: 'body'
+          description: 'Имя пользователя и пароль'
+          required: true
+          schema:
+            $ref: '#/definitions/UserLogin'
+      responses:
+        '200':
+          description: 'Успешный вход в систему'
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        '400':
+          description: 'Неверное имя пользователя или пароль'
+
+  /refresh:
+    post:
+      summary: 'Обновить токен доступа с помощью токена обновления'
+      parameters:
+        - name: 'Тело'
+          in: 'body'
+          description: 'Refresh token'
+          required: true
+          schema:
+            $ref: '#/definitions/RefreshToken'
+      responses:
+        '200':
+          description: 'Обновлен токен доступа'
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        '401':
+          description: 'Неверный или отсутствующий токен обновления'
+        '403':
+          description: 'Неверный маркер обновления'
+
+  /get-user:
+    get:
+      summary: 'Получение информации о пользователе'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+      responses:
+        '200':
+          description: 'Информация о пользователе'
+          schema:
+            $ref: '#/definitions/User'
+        '500':
+          description: 'Ошибка при получении информации о пользователе'
+
+  /api/subscribe:
+    get:
+      summary: 'Получить список доступных подписок'
+      responses:
+        '200':
+          description: 'Список подписок'
+          schema:
+            $ref: '#/definitions/SubscriptionList'
+
+    post:
+      summary: 'Подписка пользователей на план'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+        - name: 'Тело'
+          in: 'body'
+          description: 'Данные подписки'
+          required: true
+          schema:
+            $ref: '#/definitions/UserSubscription'
+      responses:
+        '200':
+          description: 'Пользователь успешно подписался'
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: 'Отсутствие необходимых параметров'
+  
+  /api/storage:
+    get:
+      summary: 'Получение информации о пользовательском хранилище'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+      responses:
+        '200':
+          description: 'Информация о хранении данных пользователя'
+          schema:
+            $ref: '#/definitions/Storage'
+        '500':
+          description: 'Ошибка при извлечении информации о хранилище'
+
+    post:
+      summary: 'Добавьте продукт в хранилище пользователя'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+        - name: 'Тело'
+          in: 'body'
+          description: 'Информация о продукте'
+          required: true
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        '200':
+          description: 'Продукт добавлен на склад'
+          schema:
+            $ref: '#/definitions/Product'
+        '400':
+          description: 'Отсутствие необходимых параметров'
+        '403':
+          description: 'Недостаточно места в хранилище или требуется подписка'
+        '500':
+          description: 'Внутренняя ошибка сервера'
+
+  /api/order:
+    get:
+      summary: 'Получение заказов пользователя'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+      responses:
+        '200':
+          description: 'Заказы пользователей'
+          schema:
+            $ref: '#/definitions/OrderList'
+        '500':
+          description: 'Внутренняя ошибка сервера'
+
+    post:
+      summary: 'Создать новый заказ'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+        - name: 'Тело'
+          in: 'body'
+          description: 'Массив названий продуктов'
+          required: true
+          schema:
+            $ref: '#/definitions/ProductNamesArray'
+      responses:
+        '200':
+          description: 'Заказ успешно создан'
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          description: 'Неверный или пустой массив названий товаров'
+        '404':
+          description: 'Для указанных имен не найдено ни одного продукта'
+        '500':
+          description: 'Внутренняя ошибка сервера'
+
+  /api/order/{code}:
+    post:
+      summary: 'Завершить заказ'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Access token'
+          required: true
+          type: 'string'
+        - name: 'Код'
+          in: 'path'
+          description: 'Order code'
+          required: true
+          type: 'string'
+      responses:
+        '200':
+          description: 'Заказ успешно завершен'
+        '400':
+          description: 'Отсутствие необходимых параметров - код'
+        '404':
+          description: 'Неверный код'
+        '500':
+          description: 'Внутренняя ошибка сервера'
+
+  /api/order/complete:
+    post:
+      summary: 'Отметить заказ как готовый к выдаче'
+      parameters:
+        - name: 'Тело'
+          in: 'body'
+          description: 'ID заказа'
+          required: true
+          schema:
+            $ref: '#/definitions/OrderId'
+      responses:
+        '200':
+          description: 'Заказ отмечен как готовый к выдаче'
+        '400':
+          description: 'Недопустимый или пустой массив ID заказа'
+        '500':
+          description: 'Внутренняя ошибка сервера'
+
+definitions:
+  UserRegistration:
+    type: 'object'
+    properties:
+      username:
+        type: 'string'
+      password:
+        type: 'string'
+      name:
+        type: 'string'
+      year:
+        type: 'integer'
+
+  UserLogin:
+    type: 'object'
+    properties:
+      username:
+        type: 'string'
+      password:
+        type: 'string'
+
+  RefreshToken:
+    type: 'object'
+    properties:
+      refresh:
+        type: 'string'
+
+  LoginResponse:
+    type: 'object'
+    properties:
+      access:
+        type: 'string'
+      refresh:
+        type: 'string'
+
+  User:
+    type: 'object'
+    properties:
+      _id:
+        type: 'string'
+      username:
+        type: 'string'
+      name:
+        type: 'string'
+      year:
+        type: 'integer'
+      subscribe:
+        type: 'string'
+      endSubscribe:
+        type: 'string'
+      password:
+        type: 'string'
+      __v:
+        type: 'integer'
+
+  SubscriptionList:
+    type: 'object'
+    properties:
+      subscribe:
+        type: 'array'
+        items:
+          type: 'object'
+        properties:
+          _id:
+            type: 'string'
+          name:
+            type: 'string'
+          limit:
+            type: 'string'
+          add:
+            type: 'integer'
+
+  UserSubscription:
+    type: 'object'
+    properties:
+      card:
+        type: 'integer'
+      date:
+        type: 'integer'
+      cvv:
+        type: 'integer'
+      subscribe:
+        type: 'string'
+      space:
+        type: 'integer'
+
+  Storage:
+    type: 'object'
+    properties:
+      _id:
+        type: 'string'
+      owner:
+        type: 'string'
+      space:
+        type: 'integer'
+      maxweight:
+        type: 'integer'
+      maxheight:
+        type: 'integer'
+      repository:
+        type: 'array'
+        items:
+          type: 'string'
+
+  Product:
+    type: 'object'
+    properties:
+      name:
+        type: 'string'
+      description:
+        type: 'string'
+      price:
+        type: 'number'
+      count:
+        type: 'integer'
+      weight:
+        type: 'integer'
+      height:
+        type: 'integer'
+
+  OrderList:
+    type: 'object'
+    properties:
+      order:
+        type: 'array'
+        items:
+          $ref: '#/definitions/Order'
+
+  Order:
+    type: 'object'
+    properties:
+      _id:
+        type: 'string'
+      customer:
+        type: 'string'
+      order:
+        type: 'array'
+        items:
+          type: 'string'
+      in:
+        type: 'string'
+      status:
+        type: 'string'
+      check:
+        type: 'string'
+      __v:
+        type: 'integer'
+
+  ProductNamesArray:
+    type: 'object'
+    properties:
+      names:
+        type: 'array'
+        items:
+          type: 'string'
+
+  OrderId:
+    type: 'object'
+    properties:
+      id:
+        type: 'string'

@@ -27,7 +27,7 @@ const schemaUser = new mongoose.Schema({
         default: null
     },
     endSubscribe: {
-        type: String,
+        type: Number,
         default: null,
     },
     ticket: [{
