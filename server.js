@@ -14,18 +14,9 @@ app.use("/api", storageRoute);
 const folderPath = path.join(__dirname, 'Receipts');
 app.use("/receipts", express.static(folderPath));
 
-const swaggerPath = path.join(__dirname, 'swagger.yaml');
+const swaggerDocument = yaml.load(fs.readFileSync(path.resolve(__dirname, 'swagger.yaml'), 'utf8'));
 
-try {
-  // Загрузка содержимого файла swagger.yaml
-  const swaggerContent = fs.readFileSync(swaggerPath, 'utf8');
-  const swaggerDocument = yaml.load(swaggerContent);
-
-  // Использование Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-} catch (error) {
-  console.error('Error loading swagger.yaml:', error);
-}
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
 
