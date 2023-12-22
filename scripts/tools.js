@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const secretKey = '0d6a21da7cca0b8624c661405444bcb52d8e7900d2e285dc9ff7e742264de3cb';
-const refreshSecretKey = '8f38c2aa9bd41d17d4a6c1f7bfab9405600836af760cd54507c7ca8bc8ece023';
+const secretKey = process.env.SECRETKEY;
+const refreshSecretKey = process.env.REFRESHKEY;
 
 function authenticateJWT(req, res, next) {
     const authHeader = req.header('Authorization');

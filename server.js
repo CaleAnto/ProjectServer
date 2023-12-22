@@ -1,4 +1,4 @@
-const { app } = require('./scripts/connect.js');
+const { app, mongoose } = require('./scripts/connect.js');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const path = require('path');

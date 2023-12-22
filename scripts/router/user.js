@@ -165,42 +165,5 @@ router.post("/subscribe", authenticateJWT, async (req, res) => {
     }
 });
 
-router.get('/', authenticateJWT, async (req, res) => {
-    res.json("Hello World");
-    console.log('Декодированные данные из JWT токена:', decodedJWT(req.header('Authorization')));
-
-    // const small = await Subscribe.create({
-    //     name: "Small",
-    //     description: "This is small subcribe",
-    //     add: 40,
-    //     price: 4000,
-    //     limit: 30,
-    // });
-
-    // const medium = await Subscribe.create({
-    //     name: "Medium",
-    //     description: "This is medium subcribe",
-    //     add: 100,
-    //     price: 10000,
-    //     limit: 30,
-    // });
-
-    // const high = await Subscribe.create({
-    //     name: "High",
-    //     description: "This is high subcribe",
-    //     add: 200,
-    //     price: 20000,
-    //     limit: 30,
-    // });
-
-    // const rent = await Subscribe.create({
-    //     name: "Rent",
-    //     description: "This is rent subcribe",
-    //     add: null,
-    //     price: 200,
-    //     limit: 30,
-    // });
-
-}); // For check for JWT token
 
 module.exports = router;

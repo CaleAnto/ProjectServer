@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -20,7 +21,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-mongoose.connect("mongodb://127.0.0.1:27017/storage");
+mongoose.connect(process.env.MONGO_DB);
 
 mongoose.connection.on('connected', () => {
   console.log('Connected');

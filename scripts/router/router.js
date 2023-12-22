@@ -137,7 +137,7 @@ router.post("/order/:code", authenticateJWT, async(req, res) => {
         const token = decodedJWT(req.header('Authorization'));
         const { code } = req.params;
 
-        if (!code) {
+        if (!code && code === '-') {
             return res.status(400).json({ missingParams: 'Missing required parameters - code' });
         }
 
@@ -204,6 +204,12 @@ router.post("/order/complete", async (req, res) => {
         if (!id) {
             return res.status(400).send("Invalid or empty product id array");
         };
+
+        const order = Order.findById(id);
+
+        if(!order.check) {
+            return res.status(400).send("This order has already been completed.");
+        }
 
         await Order.findByIdAndUpdate(id, {
             status: "Ready to be issued",
