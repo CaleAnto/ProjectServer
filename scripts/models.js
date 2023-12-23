@@ -41,6 +41,9 @@ const schemaProduct = new mongoose.Schema({
         type: String,
         required: true,
     },
+    photo: [{
+        type: String,
+    }],
     description: {
         type: String,
         required: true,
@@ -62,6 +65,10 @@ const schemaProduct = new mongoose.Schema({
         required: true,
     },
     status: String,
+    position: {
+        type: String,
+        default: "In storage"
+    },
 });
 
 const schemaStorage = new mongoose.Schema({

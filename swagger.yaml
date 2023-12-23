@@ -129,7 +129,7 @@ paths:
       parameters:
         - name: 'Авторизация'
           in: 'header'
-          description: 'Access token'
+          description: 'Token admin'
           required: true
           type: 'string'
         - name: 'Тело'
@@ -221,6 +221,11 @@ paths:
     post:
       summary: 'Отметить заказ как готовый к выдаче'
       parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Token admin'
+          required: true
+          type: 'string'
         - name: 'Тело'
           in: 'body'
           description: 'ID заказа'
@@ -234,6 +239,73 @@ paths:
           description: 'Недопустимый или пустой массив ID заказа'
         '500':
           description: 'Внутренняя ошибка сервера'
+
+  /api/product/status:
+    post:
+      summary: 'Обновление статуса продукта'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Token admin'
+          required: true
+          type: 'string'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                status:
+                  type: string
+      responses:
+        200:
+          description: 'Статус продукта успешно обновлен'
+        400:
+          description: 'Неверный или пустой массив идентификаторов товаров или статус'
+
+  /api/product/position:
+    post:
+      summary: 'Обновление позиции товара'
+      parameters:
+        - name: 'Авторизация'
+          in: 'header'
+          description: 'Token admin'
+          required: true
+          type: 'string'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                position:
+                  type: string
+      responses:
+        200:
+          description: 'Позиция продукта успешно обновлена'
+        400:
+          description: 'Неверный или пустой массив или позиция идентификатора товара'
+
+  /api/cheque/{file}:
+    get:
+      summary: 'Скачать файл квитанции'
+      parameters:
+        - name: file
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Файл квитанции успешно загружен'
+        404:
+          description: 'Файл квитанции не найден'
 
 definitions:
   UserRegistration:
@@ -344,6 +416,10 @@ definitions:
     properties:
       name:
         type: 'string'
+      photo:
+        type: 'array'
+        items:
+          type: 'string'
       description:
         type: 'string'
       price:

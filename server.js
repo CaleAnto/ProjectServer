@@ -11,8 +11,11 @@ app.use("/", userRoute);
 const storageRoute = require('./scripts/router/router.js');
 app.use("/api", storageRoute);
 
-const folderPath = path.join(__dirname, 'Receipts');
-app.use("/receipts", express.static(folderPath));
+const pathReceipts = path.join(__dirname, 'Receipts');
+app.use("/receipts", express.static(pathReceipts));
+
+const pathPhoto = path.join(__dirname, 'Photo');
+app.use("/photo", express.static(pathPhoto));
 
 const swaggerDocument = yaml.load(fs.readFileSync(path.resolve(__dirname, 'swagger.yaml'), 'utf8'));
 
