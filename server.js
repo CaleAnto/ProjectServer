@@ -14,7 +14,7 @@ app.use("/api", storageRoute);
 const folderPath = path.join(__dirname, 'Receipts');
 app.use("/receipts", express.static(folderPath));
 
-const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, 'swagger.yaml'), 'utf8'));
+const swaggerDocument = yaml.load('./swagger.yaml'));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
