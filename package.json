@@ -14,6 +14,7 @@
     "nodemon": "^3.0.2",
     "path": "^0.12.7",
     "randomatic": "^3.1.1",
+    "swagger-ui-dist": "^5.10.5",
     "swagger-ui-express": "^5.0.0"
   }
 }
