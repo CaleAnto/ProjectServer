@@ -8,11 +8,6 @@
   ],
   "routes": [
     {
-      "src": "/api-docs/(.*)",
-      "dest": "/swagger.yaml",
-      "cleanUrls": false
-    },
-    {
       "src": "/(.*)",
       "dest": "/server.js"
     }
