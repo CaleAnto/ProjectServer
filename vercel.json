@@ -5,10 +5,10 @@
         "src": "server.js",
         "use": "@vercel/node"
       },
-        { 
+      { 
         "src": "swagger.yaml", 
-            "use": "@now/node" 
-        }
+        "use": "@vercel/node" 
+      }
     ],
     "routes": [
       {
