@@ -52,6 +52,7 @@ const schemaProduct = new mongoose.Schema({
         type: String,
         required: true,
     },
+    check: String,
     count: {
         type: Number,
         required: true,

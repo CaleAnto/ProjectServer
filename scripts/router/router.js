@@ -330,6 +330,30 @@ router.post("/product/position", authenticateAdmin, async (req,res) => {
     }
 });
 
+router.post("/product/generate",  async (req,res) => {
+    
+    try {
+
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).send("Invalid or empty product id");
+        };
+        
+        const code = randomatic('A0', 5);
+
+        await Product.findByIdAndUpdate(id, {
+            check: code,
+        })
+        res.json(code)
+
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    
+})
+
 router.get('/cheque/:file', function(req,res){
     const { file } = req.params;
     const filepath = `${__dirname}/../../Receipts/${file}`;
