@@ -330,7 +330,7 @@ router.post("/product/position", authenticateAdmin, async (req,res) => {
     }
 });
 
-router.post("/product/generate",  async (req,res) => {
+router.post("/product/generate", authenticateJWT, async (req,res) => {
     
     try {
 
