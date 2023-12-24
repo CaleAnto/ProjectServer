@@ -76,7 +76,7 @@ paths:
         '500':
           description: 'Ошибка при получении информации о пользователе'
 
-  /api/subscribe:
+  /subscribe:
     get:
       summary: 'Получить список доступных подписок'
       responses:
@@ -392,6 +392,7 @@ definitions:
         type: 'string'
       space:
         type: 'integer'
+        description: 'Нужно в случае если подписка будет в виде Rent'
 
   Storage:
     type: 'object'

@@ -25,7 +25,7 @@ router.get("/storage", authenticateJWT, async (req, res) => {
     }
 });
 
-router.post("/storage", authenticateAdmin, upload.array('photos', 3), async (req, res) => {
+router.post("/storage", authenticateAdmin, upload.array('photos', 4), async (req, res) => {
 
     const { name, description, count, weight, height, userId } = req.body;
 
@@ -92,6 +92,28 @@ router.post("/storage", authenticateAdmin, upload.array('photos', 3), async (req
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }); //Complete
+
+router.get("/storage/all", authenticateAdmin, async (req, res) => {
+    try {
+        const storage = await Storage.find()
+        .populate({
+            path: 'repository',
+            model: 'product',
+        })
+        .populate({
+            path: 'owner',
+            model: 'user',
+            select: '-password' 
+        })
+        .select('-check -status')
+        .exec();
+
+        res.json(storage)
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 router.get("/order", authenticateJWT, async (req, res) => {
     try {

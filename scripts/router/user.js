@@ -102,7 +102,7 @@ router.post('/refresh', async (req, res) => {
 
 router.get("/get-user", authenticateJWT, async (req, res) => {
     try {
-        const user = await User.findById(decodedJWT(req.header('Authorization')).userId).select('-password -__v -role');
+        const user = await User.findById(decodedJWT(req.header('Authorization')).userId).select('-password -__v');
         res.json(user);
     } catch (error) {
         console.error(error);
