@@ -13,6 +13,10 @@ const schemaUser = new mongoose.Schema({
         required: true,
         minlength: 7
     },
+    role: {
+        type:String,
+        default: "User"
+    },
     name: {
         type:String,
         default: null,
@@ -59,10 +63,6 @@ const schemaProduct = new mongoose.Schema({
     height: {
         type: Number,
         default: null,
-    },
-    price: {
-        type: Number,
-        required: true,
     },
     status: String,
     position: {

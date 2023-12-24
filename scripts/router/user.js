@@ -26,7 +26,10 @@ router.post("/register", async (req, res) => {
             owner: newUser._id
         });
 
-        res.status(201).json(newUser);
+        const newUserWithoutRole = { ...newUser.toJSON() };
+        delete newUserWithoutRole.role;
+
+        res.status(201).json(newUserWithoutRole);
 
     } catch (error) {
         if (error.name === 'ValidationError') {
@@ -99,7 +102,7 @@ router.post('/refresh', async (req, res) => {
 
 router.get("/get-user", authenticateJWT, async (req, res) => {
     try {
-        const user = await User.findById(decodedJWT(req.header('Authorization')).userId).select('-password -__v');
+        const user = await User.findById(decodedJWT(req.header('Authorization')).userId).select('-password -__v -role');
         res.json(user);
     } catch (error) {
         console.error(error);

@@ -3,6 +3,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+const { User } = require('./models.js');
+
 const secretKey = process.env.SECRETKEY;
 const refreshSecretKey = process.env.REFRESHKEY;
 
@@ -54,20 +56,36 @@ function generateRefreshToken(user) {
   return jwt.sign({userId: user._id, username: user.username}, refreshSecretKey, {expiresIn: '3d'});
 };
 
-function authenticateAdmin(req, res, next) {
+async function authenticateAdmin(req, res, next) {
   const authHeader = req.header('Authorization');
-  const requiredWord = process.env.ADMINKEY;
 
   if (authHeader) {
-      const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1];
 
-      if (token === requiredWord) {
-          next();
-      } else {
-          return res.status(403).json({ error: 'У вас нет необходимых прав' });
+    if (token) {
+      try {
+        const decodedToken = jwt.verify(token, secretKey);
+
+        const user = await User.findById(decodedToken.userId);
+
+        if (!user) {
+          return res.status(403).json({ error: 'Пользователь не найден' });
+        }
+
+        if (user.role !== 'Admin') {
+          return res.status(403).json({ error: 'Доступ запрещен. Недостаточно прав' });
+        }
+
+        req.user = user;
+        next();
+      } catch (err) {
+        return res.status(403).json({ error: 'Неверный токен' });
       }
+    } else {
+      return res.status(401).json({ error: 'Токен не предоставлен' });
+    }
   } else {
-      return res.status(401).json({ error: 'Требуется аутентификация' });
+    return res.status(401).json({ error: 'Требуется аутентификация' });
   }
 }
 

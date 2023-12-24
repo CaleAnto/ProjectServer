@@ -27,13 +27,13 @@ router.get("/storage", authenticateJWT, async (req, res) => {
 
 router.post("/storage", authenticateAdmin, upload.array('photos', 3), async (req, res) => {
 
-    const { name, description, price, count, weight, height, userId } = req.body;
+    const { name, description, count, weight, height, userId } = req.body;
 
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: 'Файлы с изображениями отсутствуют' });
     }
 
-    const requiredParams = ['name', 'description', 'price', 'count', 'weight', 'height', 'userId'];
+    const requiredParams = ['name', 'description', 'count', 'weight', 'height', 'userId'];
     const missingParams = requiredParams.filter(param => !req.body[param]);
 
     if (missingParams.length > 0) {
@@ -75,7 +75,6 @@ router.post("/storage", authenticateAdmin, upload.array('photos', 3), async (req
             count,
             weight,
             height,
-            price,
             status: "In processing",
             photo: photoArray,
         });
@@ -316,5 +315,8 @@ router.get('/cheque/:file', function(req,res){
     res.download(filepath);
 }); //Complete
 
+router.get("/", authenticateAdmin, async(req,res) =>{
+    res.json("Hello, World!")
+})
 
 module.exports = router

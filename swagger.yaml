@@ -422,8 +422,6 @@ definitions:
           type: 'string'
       description:
         type: 'string'
-      price:
-        type: 'number'
       count:
         type: 'integer'
       weight:
